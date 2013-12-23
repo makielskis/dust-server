@@ -2,7 +2,9 @@
 
 #include <memory>
 
-#include "boost/asio/io_service.hpp"
+namespace boost { namespace asio {
+class io_service;
+} }
 
 namespace dust_server {
 
