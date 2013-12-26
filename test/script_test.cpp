@@ -9,7 +9,6 @@
 #include "dust/storage/mem_store.h"
 #include "dust-server/dust_server.h"
 
-
 using namespace dust;
 
 class script_test: public testing::Test {
@@ -17,7 +16,7 @@ class script_test: public testing::Test {
   script_test()
       : store_(std::make_shared<mem_store>()),
         io_service_(),
-        server_(io_service_, store_)  {
+        server_(io_service_, store_, "testuser", "testpass")  {
   }
 
  protected:
@@ -28,11 +27,12 @@ class script_test: public testing::Test {
 
 TEST_F(script_test, assign_test) {
   std::string script = R"(
-import Dust
-def run(doc):
-  doc["foo"]["bar"].assign("Hello")
-  doc["foo"]["baz"].assign("World")
-  return doc["foo"]["bar"].val() + ", " + doc["foo"]["baz"].val())";
+function run(doc)
+  doc:get("foo"):get("h"):set("Hello")
+  doc:get("foo"):get("w"):set(", World")
+  return doc:get("foo"):get("h"):val() .. doc:get("foo"):get("w"):val()
+end
+)";
 
   std::string result = server_.apply_script(script);
   ASSERT_EQ("Hello, World", result);
@@ -40,15 +40,18 @@ def run(doc):
 
 TEST_F(script_test, value_of_nonexistent_entry_test) {
   std::string script = R"(
-import Dust
-def run(doc):
-  doc["non"]["existent"].val()
-  return "test failed")";
+function run(doc)
+  result = doc:get("non"):get("existant"):val()
+  return result
+end
+)";
 
   std::string result = server_.apply_script(script);
-  ASSERT_TRUE(boost::algorithm::ends_with(result, "value does not exist\n"));
+  ASSERT_EQ(result, "ignore");
+  ASSERT_FALSE(boost::algorithm::ends_with(result, "value does not exist\n"));
 }
 
+/*
 TEST_F(script_test, store_override_composite_fail_test) {
   std::string script = R"(
 import Dust
@@ -99,7 +102,6 @@ def run(doc):
   std::string result = server_.apply_script(script);
   ASSERT_EQ("baz", result);
 }
-
 TEST_F(script_test, exists_test) {
   std::string script = R"(
 import Dust
@@ -139,3 +141,22 @@ def run(doc):
   std::string result = server_.apply_script(script);
   ASSERT_EQ("True,False", result);
 }
+
+TEST_F(script_test, context_pollution_test) {
+  std::string write_script = R"(
+pollution = "foobar"
+
+def run(doc):
+  return "script_1" )";
+
+  std::string read_script = R"(
+def run(doc):
+  return pollution )";
+
+  server_.apply_script(write_script);
+  std::string result = server_.apply_script(read_script);
+
+  ASSERT_NE(result, "foobar");
+}
+*/
+
