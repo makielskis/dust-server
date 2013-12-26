@@ -178,7 +178,7 @@ void dust_server::registerLuaDocument(const state_wrapper& L) {
     .beginClass<dust::document>("Document")
       .addConstructor <void (*)(const dust::document)>()
       .addFunction("get", &dust::document::operator[])
-      .addFunction("assign", &dust::document::assign)
+      .addFunction("set", &dust::document::assign)
       .addFunction("index", &dust::document::index)
       .addFunction("val", &dust::document::val)
       .addFunction("exists", &dust::document::exists)
