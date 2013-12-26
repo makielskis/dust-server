@@ -12,6 +12,24 @@ namespace dust_server {
 
 using botscript::state_wrapper;
 
+/// This exception indicates an error that occured at lua script execution.
+class lua_error : public std::exception {
+ public:
+  explicit lua_error(const std::string& what)
+    : error(what) {
+  }
+
+  ~lua_error() throw() {
+  }
+
+  virtual const char* what() const throw() {
+    return error.c_str();
+  }
+
+ private:
+  std::string error;
+};
+
 class dust_server {
  public:
   dust_server(boost::asio::io_service* io_service,
@@ -25,7 +43,7 @@ class dust_server {
 
  private:
   void registerLuaDocument(const state_wrapper& L);
-  bool url_decode(const std::string& in, std::string& out);
+  void do_string(const state_wrapper&, const std::string& script);
 
   boost::asio::io_service* io_service_;
   std::shared_ptr<dust::key_value_store> store_;

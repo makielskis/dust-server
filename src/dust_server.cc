@@ -30,123 +30,18 @@ dust_server::dust_server(boost::asio::io_service* io_service,
       password_(std::move(password)) {
 }
 
-void dust_server::start_server() {
-  // Create message handler.
-  using http_server::request;
-  using http_server::header;
-  using http_server::reply;
-
-  typedef boost::function<void(const request&, reply&)> handler;
-  handler req_handler = [this](const request& req, reply& rep) {
-    // Extract headers.
-    bool urlencoded = false;
-    std::string auth = "";
-
-    for (const auto& h : req.headers) {
-      if (h.name == "Content-Type"
-          && h.value.find("urlencoded") != std::string::npos) {
-        urlencoded = true;
-      }
-
-      if (h.name == "Authorization") {
-        auth = h.value;
-      }
-    }
-
-    // No authorization sent. -> STOP
-    std::string debug =  auth.empty() ? auth : auth.substr(0, 5);
-    std::cout << "auth: '" << debug << "'\n";
-    if (auth.empty() || auth.substr(0, 5) != "Basic") {
-      rep.content = "authorization required";
-      rep.status = reply::unauthorized;
-      rep.headers.resize(3);
-      rep.headers[0].name = "Content-Length";
-      rep.headers[0].value = std::to_string(rep.content.size());
-      rep.headers[1].name = "Content-Type";
-      rep.headers[1].value = "text/plain";
-      rep.headers[2].name = "WWW-Authenticate";
-      rep.headers[2].value = "Basic realm=\"dustDB\"";
-
-      return;
-    }
-
-    // Check authorization.
-    std::string credentials = decode_base64(auth.substr(6));
-    std::cout << "cedentials: " << credentials << "\n";
-    size_t split = credentials.find_first_of(":");
-
-    // Bad credentials format. -> STOP
-    if (split == std::string::npos) {
-      rep.content = "invalid authorization request";
-      rep.status = reply::bad_request;
-      rep.headers.resize(2);
-      rep.headers[0].name = "Content-Length";
-      rep.headers[0].value = std::to_string(rep.content.size());
-      rep.headers[1].name = "Content-Type";
-      rep.headers[1].value = "text/plain";
-
-      return;
-    }
-
-    std::string username = credentials.substr(0, split);
-    std::string password = credentials.substr(split + 1, std::string::npos);
-
-    std::cout << "username: " << username << "\n";
-    std::cout << "password: " << password << "\n";
-
-    // Invalid username/password. -> STOP
-    if (username != username_ || password != password_) {
-      rep.content = "access denied";
-      rep.status = reply::unauthorized;
-      rep.headers.resize(2);
-      rep.headers[0].name = "Content-Length";
-      rep.headers[0].value = std::to_string(rep.content.size());
-      rep.headers[1].name = "Content-Type";
-      rep.headers[1].value = "text/plain";
-
-      return;
-    }
-
-    // Decode content if required.
-    std::string script;
-    if (urlencoded) {
-      url_decode(req.content, script);
-    } else {
-      script = req.content;
-    }
-
-    // Execute script.
-    std::string result = apply_script(script);
-    std::cout << "script: '" << script << "'\n";
-    std::cout << "result: '" << result << "'\n";
-
-    // Send result.
-    rep.content = result;
-    rep.status = reply::ok;
-    rep.headers.resize(2);
-    rep.headers[0].name = "Content-Length";
-    rep.headers[0].value = std::to_string(rep.content.size());
-    rep.headers[1].name = "Content-Type";
-    rep.headers[1].value = "text/plain";
-  };
-
-  // Instantiate and run server.
-  http_server::server(*io_service_, "0.0.0.0", "9091", req_handler)();
-  io_service_->run();
-}
-
 std::string dust_server::apply_script(std::string script) {
   try {
+    // Create and initialize lua state.
     state_wrapper state;
     luaL_openlibs(state.get());
     registerLuaDocument(state);
 
     // Load script.
-    if (luaL_dostring(state.get(), script.c_str())) {
-      // compile-time error
-      std::string err = lua_tostring(state.get(), -1);
-      std::cerr << err << "\n";
-      return err;
+    try {
+      do_string(state, script);
+    } catch (const lua_error& error) {
+      return error.what();
     }
 
     // Get run function form lua.
@@ -154,21 +49,75 @@ std::string dust_server::apply_script(std::string script) {
 
     if (lua_run.isNil()) {
       // run function is not defined
-      std::cerr << "run method not defined" << "\n";
       return "run method not defined";
     }
 
     // Pass root document to run and execute.
     dust::document root_doc(store_, "");
-    return lua_run(root_doc);
+    return lua_run(root_doc).tostring();
   } catch (const LuaException& e) {
-    std::string details(e.what());
-
-    std::cerr << details;
-    return details;
+    return std::string("error: ") + e.what();
   }
 
   return "undefined error";
+}
+
+void dust_server::do_string(const state_wrapper& state_wrap, const std::string& script) {
+  lua_State* state = state_wrap.get();
+
+  // Load buffer to state.
+  int ret = luaL_loadbuffer(state,
+                            script.c_str(), script.length(), "");
+
+  // Check load error.
+  if (LUA_OK != ret) {
+    std::string error;
+
+    // Extract error string.
+    const char* s = nullptr;
+    if (lua_isstring(state, -1)) {
+      s = lua_tostring(state, -1);
+    }
+
+    // If extracted error string is a nullptr or empty:
+    // Translate error code.
+    if (nullptr == s || std::strlen(s) == 0) {
+      switch (ret) {
+        case LUA_ERRSYNTAX: error = "syntax error"; break;
+        case LUA_ERRMEM:    error = "out of memory"; break;
+        case LUA_ERRGCMM:   error = "gc error"; break;
+        default:            error = "unknown error code"; break;
+      }
+    } else {
+      error = s;
+    }
+
+    throw lua_error(error.empty() ? "unknown error" : error);
+  }
+
+  // Run loaded buffer and check for errors.
+  if (0 != (ret = lua_pcall(state, 0, LUA_MULTRET, 0))) {
+    std::string error;
+
+    const char* s = nullptr;
+    if (lua_isstring(state, -1)) {
+      s = lua_tostring(state, -1);
+    }
+
+    if (nullptr == s || std::strlen(s) == 0) {
+      switch (ret) {
+        case LUA_ERRRUN:  error = "runtime error"; break;
+        case LUA_ERRMEM:  error = "out of memory"; break;
+        case LUA_ERRERR:  error = "error handling error"; break;
+        case LUA_ERRGCMM: error = "gc error"; break;
+        default:          error = "unknown error code"; break;
+      }
+    } else {
+      error = s;
+    }
+
+    throw lua_error(error.empty() ? "unknown error" : error);
+  }
 }
 
 void dust_server::registerLuaDocument(const state_wrapper& L) {
@@ -191,32 +140,6 @@ void dust_server::registerLuaDocument(const state_wrapper& L) {
       .addFunction("__index", at_member)
       .addFunction("__len", &doc_vec::size)
     .endClass();
-}
-
-bool dust_server::url_decode(const std::string& in, std::string& out) {
-  out.clear();
-  out.reserve(in.size());
-  for (std::size_t i = 0; i < in.size(); ++i) {
-    if (in[i] == '%') {
-      if (i + 3 <= in.size()) {
-        int value = 0;
-        std::istringstream is(in.substr(i + 1, 2));
-        if (is >> std::hex >> value) {
-          out += static_cast<char>(value);
-          i += 2;
-        } else {
-          return false;
-        }
-      } else {
-        return false;
-      }
-    } else if (in[i] == '+') {
-      out += ' ';
-    } else {
-      out += in[i];
-    }
-  }
-  return true;
 }
 
 }

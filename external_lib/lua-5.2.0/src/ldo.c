@@ -4,7 +4,6 @@
 ** See Copyright Notice in lua.h
 */
 
-
 #include <setjmp.h>
 #include <stdlib.h>
 #include <string.h>
@@ -50,9 +49,15 @@
 
 #if defined(__cplusplus) && !defined(LUA_USE_LONGJMP)
 /* C++ exceptions */
+#include <exception>
 #define LUAI_THROW(L,c)		throw(c)
 #define LUAI_TRY(L,c,a) \
-	try { a } catch(...) { if ((c)->status == 0) (c)->status = -1; }
+       try { a } \
+   catch(const std::exception& e) { \
+     lua_pushstring(L, e.what());\
+      if ((c)->status == 0) (c)->status = -1;\
+   } \
+   catch(...) { if ((c)->status == 0) (c)->status = -1; }
 #define luai_jmpbuf		int  /* dummy variable */
 
 #elif defined(LUA_USE_ULONGJMP)
