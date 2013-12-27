@@ -52,10 +52,10 @@
 #include <exception>
 #define LUAI_THROW(L,c)		throw(c)
 #define LUAI_TRY(L,c,a) \
-       try { a } \
+   try { a } \
    catch(const std::exception& e) { \
      lua_pushstring(L, e.what());\
-      if ((c)->status == 0) (c)->status = -1;\
+     if ((c)->status == 0) (c)->status = -1;\
    } \
    catch(...) { if ((c)->status == 0) (c)->status = -1; }
 #define luai_jmpbuf		int  /* dummy variable */

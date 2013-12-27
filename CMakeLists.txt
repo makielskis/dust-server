@@ -41,7 +41,7 @@ include_directories(${gtest_SOURCE_DIR}/include ${gtest_SOURCE_DIR})
 
 add_executable(dust-server-tests EXCLUDE_FROM_ALL
   test/script_test.cpp
-#  test/server_test.cpp
+  test/server_test.cpp
 )
 
 target_link_libraries(dust-server-tests gtest gtest_main dust-server lua)

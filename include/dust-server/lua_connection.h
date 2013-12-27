@@ -1,12 +1,9 @@
-#include "dust/storage/key_value_store.h"
-
 #include <memory>
 
-#include "dust-server/lua_state_wrapper.h"
+#include "dust/storage/key_value_store.h"
+#include "dust/document.h"
 
-namespace boost { namespace asio {
-class io_service;
-} }
+#include "dust-server/lua_state_wrapper.h"
 
 namespace dust_server {
 
@@ -30,25 +27,18 @@ class lua_error : public std::exception {
   std::string error;
 };
 
-class dust_server {
+class lua_connection {
  public:
-  dust_server(boost::asio::io_service* io_service,
-              std::shared_ptr<dust::key_value_store> store,
-              std::string username,
-              std::string password);
+  lua_connection(std::shared_ptr<dust::key_value_store> store);
 
   std::string apply_script(std::string script);
-
-  void start_server();
 
  private:
   void registerLuaDocument(const state_wrapper& L);
   void do_string(const state_wrapper&, const std::string& script);
+  dust::document get_document(const std::string& index);
 
-  boost::asio::io_service* io_service_;
   std::shared_ptr<dust::key_value_store> store_;
-  std::string username_;
-  std::string password_;
 };
 
 }

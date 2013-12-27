@@ -1,4 +1,31 @@
-void dust_server::start_server() {
+#include <memory>
+
+#include "dust/storage/key_value_store.h"
+
+#include "dust-server/http_service.h"
+#include "dust-server/base64_decode.h"
+
+#include "boost/asio/io_service.hpp"
+
+#include "server.hpp"
+#include "request.hpp"
+#include "reply.hpp"
+
+namespace dust_server {
+
+namespace http_server = http::server4;
+
+http_service::http_service(boost::asio::io_service* io_service,
+                           std::shared_ptr<dust::key_value_store> store,
+                           const std::string& username,
+                           const std::string& password)
+    : io_service_(io_service),
+      lua_con_(store),
+      username_(std::move(username)),
+      password_(std::move(password)) {
+}
+
+void http_service::start_server() {
   // Create message handler.
   using http_server::request;
   using http_server::header;
@@ -78,13 +105,14 @@ void dust_server::start_server() {
     // Decode content if required.
     std::string script;
     if (urlencoded) {
+      std::cout << "script is url-encoded\n";
       url_decode(req.content, script);
     } else {
       script = req.content;
     }
 
     // Execute script.
-    std::string result = apply_script(script);
+    std::string result = lua_con_.apply_script(script);
     std::cout << "script: '" << script << "'\n";
     std::cout << "result: '" << result << "'\n";
 
@@ -103,7 +131,7 @@ void dust_server::start_server() {
   io_service_->run();
 }
 
-bool dust_server::url_decode(const std::string& in, std::string& out) {
+bool http_service::url_decode(const std::string& in, std::string& out) {
   out.clear();
   out.reserve(in.size());
   for (std::size_t i = 0; i < in.size(); ++i) {
@@ -127,4 +155,6 @@ bool dust_server::url_decode(const std::string& in, std::string& out) {
     }
   }
   return true;
+}
+
 }

@@ -1,36 +1,27 @@
-#include "dust-server/dust_server.h"
+#include "dust-server/lua_connection.h"
 
-#include "server.hpp"
-#include "request.hpp"
-#include "reply.hpp"
+#include <cstring>
 
-#include <lua.h>
-#include <lualib.h>
-#include <lauxlib.h>
+#include "lua.h"
+#include "lualib.h"
+#include "lauxlib.h"
 
 #include "LuaBridge/LuaBridge.h"
 
-#include "dust-server/base64_decode.h"
+#include "dust/document.h"
+
 #include "dust-server/lua_state_wrapper.h"
 
-#include "dust/document.h"
 
 namespace dust_server {
 
-namespace http_server = http::server4;
 using namespace luabridge;
 
-dust_server::dust_server(boost::asio::io_service* io_service,
-                         std::shared_ptr<dust::key_value_store> store,
-                         std::string username,
-                         std::string password)
-    : io_service_(io_service),
-      store_(store),
-      username_(std::move(username)),
-      password_(std::move(password)) {
+lua_connection::lua_connection(std::shared_ptr<dust::key_value_store> store)
+    : store_(store) {
 }
 
-std::string dust_server::apply_script(std::string script) {
+std::string lua_connection::apply_script(std::string script) {
   try {
     // Create and initialize lua state.
     state_wrapper state;
@@ -52,22 +43,19 @@ std::string dust_server::apply_script(std::string script) {
       return "run method not defined";
     }
 
-    // Pass root document to run and execute.
-    dust::document root_doc(store_, "");
-    return lua_run(root_doc).tostring();
+    // Execute run method and pass 'this', to allow getting a document in lua.
+    auto result = lua_run(this);
+    return result.isString() ? result.tostring() : "error: non-string return type";
   } catch (const LuaException& e) {
     return std::string("error: ") + e.what();
   }
-
-  return "undefined error";
 }
 
-void dust_server::do_string(const state_wrapper& state_wrap, const std::string& script) {
+void lua_connection::do_string(const state_wrapper& state_wrap, const std::string& script) {
   lua_State* state = state_wrap.get();
 
   // Load buffer to state.
-  int ret = luaL_loadbuffer(state,
-                            script.c_str(), script.length(), "");
+  int ret = luaL_loadbuffer(state, script.c_str(), script.length(), "");
 
   // Check load error.
   if (LUA_OK != ret) {
@@ -120,12 +108,17 @@ void dust_server::do_string(const state_wrapper& state_wrap, const std::string& 
   }
 }
 
-void dust_server::registerLuaDocument(const state_wrapper& L) {
+void lua_connection::registerLuaDocument(const state_wrapper& L) {
   typedef std::vector<dust::document> doc_vec;
   doc_vec::reference (doc_vec::*at_member)(doc_vec::size_type) = &doc_vec::at;
+
   getGlobalNamespace(L.get())
+    .beginClass<lua_connection>("DB")
+      .addFunction("get_document", &lua_connection::get_document)
+    .endClass()
     .beginClass<dust::document>("Document")
       .addConstructor <void (*)(const dust::document)>()
+      .addFunction("__tostring", &dust::document::to_json)
       .addFunction("get", &dust::document::operator[])
       .addFunction("set", &dust::document::assign)
       .addFunction("index", &dust::document::index)
@@ -140,6 +133,10 @@ void dust_server::registerLuaDocument(const state_wrapper& L) {
       .addFunction("__index", at_member)
       .addFunction("__len", &doc_vec::size)
     .endClass();
+}
+
+dust::document lua_connection::get_document(const std::string& index) {
+  return dust::document(store_, index);
 }
 
 }
