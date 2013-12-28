@@ -259,6 +259,20 @@ end
   ASSERT_EQ(R"({"foo":{"a":"1","b":"2","c":"3","d":"4","e":{"XY":"5"}}})", result);
 }
 
+TEST_F(script_test, from_json) {
+  std::string script = R"(
+function run(db)
+  local doc = db:get_document("users")
+  doc:from_json('{"foo":{"a":"1","b":"2","c":"3","d":"4","e":{"XY":"5"}}}')
+  return tostring(doc)
+end
+)";
+
+  std::string result = lua_con_.apply_script(script);
+  ASSERT_EQ(R"({"foo":{"a":"1","b":"2","c":"3","d":"4","e":{"XY":"5"}}})", result);
+}
+
+
 TEST_F(script_test, non_string_return_nil) {
   std::string script = R"(
 function run(db)

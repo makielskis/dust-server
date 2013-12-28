@@ -19,6 +19,6 @@ class server_test: public testing::Test {
   dust_server::http_service server_;
 };
 
-TEST_F(server_test, assign_test) {
+TEST_F(server_test, server_test) {
   server_.start_server();
 }

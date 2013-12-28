@@ -127,6 +127,7 @@ void lua_connection::registerLuaDocument(const state_wrapper& L) {
       .addFunction("remove", &dust::document::remove)
       .addFunction("is_composite", &dust::document::is_composite)
       .addFunction("children", &dust::document::children)
+      .addFunction("from_json", &dust::document::from_json)
     .endClass()
     .beginClass<doc_vec>("DocumentVector")
       .addConstructor <void (*)(void)>()
