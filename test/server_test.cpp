@@ -21,4 +21,5 @@ class server_test: public testing::Test {
 
 TEST_F(server_test, server_test) {
   server_.start_server();
+  io_service_.run();
 }
