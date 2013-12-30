@@ -6,6 +6,7 @@
 #include "dust-server/http_service.h"
 #include "dust-server/base64_decode.h"
 
+#include "boost/lexical_cast.hpp"
 #include "boost/asio/io_service.hpp"
 
 #include "request.hpp"
@@ -98,7 +99,7 @@ void http_service::handle_request(const http_server::request& req,
   rep.status = http_server::reply::ok;
   rep.headers.resize(2);
   rep.headers[0].name = "Content-Length";
-  rep.headers[0].value = std::to_string(rep.content.size());
+  rep.headers[0].value = boost::lexical_cast<std::string>(rep.content.size());
   rep.headers[1].name = "Content-Type";
   rep.headers[1].value = "text/plain";
 }
