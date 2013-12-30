@@ -24,6 +24,8 @@ class http_service {
  public:
   http_service(boost::asio::io_service* io_service,
                std::shared_ptr<dust::key_value_store> store,
+               const std::string& ip,
+               const std::string& port,
                const std::string& username,
                const std::string& password);
 

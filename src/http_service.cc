@@ -19,10 +19,12 @@ using std::placeholders::_2;
 
 http_service::http_service(boost::asio::io_service* io_service,
                            std::shared_ptr<dust::key_value_store> store,
+                           const std::string& ip,
+                           const std::string& port,
                            const std::string& username,
                            const std::string& password)
     : io_service_(io_service),
-      http_server_(*io_service_, "0.0.0.0", "9091",
+      http_server_(*io_service_, ip, port,
                    std::bind(&http_service::handle_request, this, _1, _2)),
       lua_con_(store),
       username_(std::move(username)),
