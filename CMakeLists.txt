@@ -12,7 +12,10 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -std=c++11")
 ################################
 add_subdirectory(external_lib/dust)
 add_subdirectory(external_lib/http_server)
-add_subdirectory(external_lib/lua-5.2.0)
+
+if (NOT TARGET lua)
+  add_subdirectory(external_lib/lua-5.2)
+endif()
 
 
 ################################
@@ -22,7 +25,7 @@ include_directories("include/")
 include_directories("external_lib/dust/include")
 include_directories("external_lib/http_server")
 include_directories("external_lib/luabridge/Source")
-include_directories("external_lib/lua-5.2.0/src")
+include_directories("external_lib/lua-5.2/src")
 
 file(GLOB src_files "src/*.cc")
 add_library(dust-server STATIC ${src_files})
