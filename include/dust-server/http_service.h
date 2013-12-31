@@ -41,8 +41,6 @@ class http_service {
   dust_server::lua_connection lua_con_;
   const std::string username_;
   const std::string password_;
-
-  static bool url_decode(const std::string& in, std::string& out);
 };
 
 }
