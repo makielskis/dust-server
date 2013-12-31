@@ -282,7 +282,7 @@ end
 )";
 
   std::string result = lua_con_.apply_script(script);
-  ASSERT_EQ("error: non-string return type", result);
+  ASSERT_EQ("error: non-string return", result);
 }
 
 TEST_F(script_test, invalid_syntax) {
@@ -305,7 +305,7 @@ end
 )";
 
   std::string result = lua_con_.apply_script(script);
-  ASSERT_EQ("error: non-string return type", result);
+  ASSERT_EQ("error: non-string return", result);
 }
 
 TEST_F(script_test, missing_run_method) {

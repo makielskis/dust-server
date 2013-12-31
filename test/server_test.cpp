@@ -11,7 +11,9 @@ class server_test: public testing::Test {
  public:
   server_test()
       : io_service_(),
-        server_(&io_service_, std::make_shared<mem_store>(), "testuser", "testpass")  {
+        server_(&io_service_,
+                std::make_shared<mem_store>(),
+                "0.0.0.0", "9004", "testuser", "testpass")  {
   }
 
  protected:
@@ -20,6 +22,5 @@ class server_test: public testing::Test {
 };
 
 TEST_F(server_test, server_test) {
-  server_.start_server();
   io_service_.run();
 }

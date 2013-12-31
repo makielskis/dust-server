@@ -1,10 +1,36 @@
 cmake_minimum_required(VERSION 2.6)
 project(http_server)
 
+
+################################
+# Boost
+################################
+set(Boost_USE_STATIC_LIBS ON)
+find_package(Boost COMPONENTS
+  system
+  thread
+  regex
+REQUIRED)
+if(Boost_FOUND)
+  include_directories(${Boost_INCLUDE_DIR})
+else(Boost_FOUND)
+  message("No Boost found.")
+endif(Boost_FOUND)
+link_directories(${CMAKE_LIBRARY_PATH})
+
+
+################################
+# Library Target
+################################
 include_directories(".")
 file(GLOB HTTP_SERVER_FILES "*.cpp")
 add_library(http_server STATIC ${HTTP_SERVER_FILES})
+target_link_libraries(http_server ${Boost_LIBRARIES})
 
+
+################################
+# Compiler settings
+################################
 if(MSVC)
   set(_def
     _VARIADIC_MAX=10

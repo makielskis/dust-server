@@ -24,7 +24,7 @@ include_directories("external_lib/lua-5.2/src")
 file(GLOB src_files "src/*.cc")
 
 add_library(dust-server STATIC ${src_files})
-target_link_libraries(dust-server dust http_server lua ${Boost_LIBRARIES})
+target_link_libraries(dust-server dust http_server lua)
 
 if (MSVC)
   set(_def
@@ -61,4 +61,6 @@ if (NOT MSVC AND NOT MINGW)
   )
 
   target_link_libraries(dust-server-tests gtest gtest_main dust-server lua)
+
+  set_target_properties(dust-server-tests PROPERTIES COMPILE_FLAGS "-std=c++11")
 endif()
