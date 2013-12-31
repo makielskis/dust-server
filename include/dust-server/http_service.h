@@ -30,7 +30,6 @@ class http_service {
                const std::string& username,
                const std::string& password);
  private:
-
   bool authorized(const std::string& auth) const;
   void handle_request(const http::server::request& request,
                       http::server::reply& reply);
