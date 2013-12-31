@@ -264,7 +264,6 @@ request_parser::result_type request_parser::consume(request& req, char input)
           {
             return bad;
           }
-          req.content.resize(parsed_length);
           req.content_length = parsed_length;
         }
         catch (const boost::bad_lexical_cast&)
