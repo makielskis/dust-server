@@ -2,14 +2,14 @@
 // reply.hpp
 // ~~~~~~~~~
 //
-// Copyright (c) 2003-2012 Christopher M. Kohlhoff (chris at kohlhoff dot com)
+// Copyright (c) 2003-2013 Christopher M. Kohlhoff (chris at kohlhoff dot com)
 //
 // Distributed under the Boost Software License, Version 1.0. (See accompanying
 // file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 //
 
-#ifndef HTTP_SERVER4_REPLY_HPP
-#define HTTP_SERVER4_REPLY_HPP
+#ifndef HTTP_REPLY_HPP
+#define HTTP_REPLY_HPP
 
 #include <string>
 #include <vector>
@@ -17,7 +17,7 @@
 #include "header.hpp"
 
 namespace http {
-namespace server4 {
+namespace server {
 
 /// A reply to be sent to a client.
 struct reply
@@ -58,7 +58,7 @@ struct reply
   static reply stock_reply(status_type status);
 };
 
-} // namespace server4
+} // namespace server
 } // namespace http
 
-#endif // HTTP_SERVER4_REPLY_HPP
+#endif // HTTP_REPLY_HPP

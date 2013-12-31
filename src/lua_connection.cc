@@ -45,13 +45,14 @@ std::string lua_connection::apply_script(std::string script) {
 
     // Execute run method and pass 'this', to allow getting a document in lua.
     auto result = lua_run(this);
-    return result.isString() ? result.tostring() : "error: non-string return type";
+    return result.isString() ? result.tostring() : "error: non-string return";
   } catch (const LuaException& e) {
     return std::string("error: ") + e.what();
   }
 }
 
-void lua_connection::do_string(const state_wrapper& state_wrap, const std::string& script) {
+void lua_connection::do_string(const state_wrapper& state_wrap,
+                               const std::string& script) {
   lua_State* state = state_wrap.get();
 
   // Load buffer to state.

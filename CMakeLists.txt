@@ -28,19 +28,21 @@ target_link_libraries(dust-server dust http_server lua ${Boost_LIBRARIES})
 
 if (MSVC)
   set(_def
-      _VARIADIC_MAX=10
-      _WIN32_WINNT=0x0501
-     )
+    _VARIADIC_MAX=10
+    _WIN32_WINNT=0x0501
+  )
   set_target_properties(dust-server PROPERTIES COMPILE_DEFINITIONS ${_def})
 elseif(MINGW)
   set(_def
-      _WIN32_WINNT=0x0501
-      WINVER=0x0501
-      _WIN32_IE=0x0501
-     )
+    _WIN32_WINNT=0x0501
+    WINVER=0x0501
+    _WIN32_IE=0x0501
+  )
   set_target_properties(dust-server PROPERTIES COMPILE_FLAGS "-std=c++11 -s")
   set_target_properties(dust-server PROPERTIES COMPILE_DEFINITIONS ${_def})
-else()
+endif()
+
+if (NOT MSVC AND NOT MINGW)
   set_target_properties(dust-server PROPERTIES COMPILE_FLAGS "-Wall -Wextra -std=c++11")
 
   ################################
@@ -60,4 +62,3 @@ else()
 
   target_link_libraries(dust-server-tests gtest gtest_main dust-server lua)
 endif()
-

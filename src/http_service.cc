@@ -9,12 +9,12 @@
 #include "boost/lexical_cast.hpp"
 #include "boost/asio/io_service.hpp"
 
+#include "url_decode.hpp"
 #include "request.hpp"
 #include "reply.hpp"
 
 namespace dust_server {
 
-namespace http_server = http::server4;
 using std::placeholders::_1;
 using std::placeholders::_2;
 
@@ -25,15 +25,11 @@ http_service::http_service(boost::asio::io_service* io_service,
                            const std::string& username,
                            const std::string& password)
     : io_service_(io_service),
-      http_server_(*io_service_, ip, port,
-                   std::bind(&http_service::handle_request, this, _1, _2)),
+      request_handler_(std::bind(&http_service::handle_request, this, _1, _2)),
+      http_server_(*io_service_, ip, port, request_handler_),
       lua_con_(store),
       username_(std::move(username)),
       password_(std::move(password)) {
-}
-
-void http_service::start_server() {
-  http_server_();
 }
 
 bool http_service::authorized(const std::string& auth) const {
@@ -51,9 +47,9 @@ bool http_service::authorized(const std::string& auth) const {
   return username == username_ && password == password_;
 }
 
-void http_service::handle_request(const http_server::request& req,
-                                  http_server::reply& rep) {
-  using http_server::header;
+void http_service::handle_request(const http::server::request& req,
+                                  http::server::reply& rep) {
+  using http::server::header;
 
   // Extract headers.
   bool urlencoded = false;
@@ -69,14 +65,14 @@ void http_service::handle_request(const http_server::request& req,
 
   // No authorization sent.
   if (auth.empty() || auth.substr(0, 5) != "Basic") {
-    rep.status = http_server::reply::unauthorized;
+    rep.status = http::server::reply::unauthorized;
     rep.headers.push_back( { "WWW-Authenticate", "Basic realm=\"dustDB\"" });
     return;
   }
 
   // Invalid username/password. -> STOP
   if (!authorized(auth)) {
-    rep.status = http_server::reply::unauthorized;
+    rep.status = http::server::reply::unauthorized;
     return;
   }
 
@@ -84,19 +80,19 @@ void http_service::handle_request(const http_server::request& req,
   std::string script;
   if (urlencoded) {
     std::cout << "script is url-encoded\n";
-    url_decode(req.content, script);
+    http::server::url_decode(req.content, script);
   } else {
     script = req.content;
   }
 
   // Execute script.
+  std::cout << "script:\n'" << script << "'\n";
   std::string result = lua_con_.apply_script(script);
-  std::cout << "script: '" << script << "'\n";
   std::cout << "result: '" << result << "'\n";
 
   // Send result.
   rep.content = result;
-  rep.status = http_server::reply::ok;
+  rep.status = http::server::reply::ok;
   rep.headers.resize(2);
   rep.headers[0].name = "Content-Length";
   rep.headers[0].value = boost::lexical_cast<std::string>(rep.content.size());

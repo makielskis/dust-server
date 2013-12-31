@@ -1,9 +1,10 @@
 #include <memory>
 #include <string>
 
-#include "dust/storage/key_value_store.h"
-
 #include "server.hpp"
+#include "request_handler.hpp"
+
+#include "dust/storage/key_value_store.h"
 
 #include "dust-server/lua_connection.h"
 
@@ -28,17 +29,15 @@ class http_service {
                const std::string& port,
                const std::string& username,
                const std::string& password);
-
-  void start_server();
-
  private:
 
   bool authorized(const std::string& auth) const;
-  void handle_request(const http::server4::request& request,
-                      http::server4::reply& reply);
+  void handle_request(const http::server::request& request,
+                      http::server::reply& reply);
 
   boost::asio::io_service* io_service_;
-  http::server4::server http_server_;
+  http::server::request_handler request_handler_;
+  http::server::server http_server_;
   dust_server::lua_connection lua_con_;
   const std::string username_;
   const std::string password_;
