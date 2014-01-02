@@ -1,3 +1,7 @@
+// Copyright (c) 2014, makielski.net
+// Licensed under the MIT license
+// https://raw.github.com/makielski/botscript/master/COPYING
+
 #include "dust-server/lua_connection.h"
 
 #include <cstring>
@@ -12,16 +16,15 @@
 
 #include "dust-server/lua_state_wrapper.h"
 
+using namespace luabridge;
 
 namespace dust_server {
-
-using namespace luabridge;
 
 lua_connection::lua_connection(std::shared_ptr<dust::key_value_store> store)
     : store_(store) {
 }
 
-std::string lua_connection::apply_script(std::string script) {
+std::string lua_connection::apply_script(const std::string& script) {
   try {
     // Create and initialize lua state.
     state_wrapper state;
@@ -141,4 +144,4 @@ dust::document lua_connection::get_document(const std::string& index) {
   return dust::document(store_, index);
 }
 
-}
+}  // namespace dust_server

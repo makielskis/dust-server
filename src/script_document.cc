@@ -1,3 +1,7 @@
+// Copyright (c) 2014, makielski.net
+// Licensed under the MIT license
+// https://raw.github.com/makielski/botscript/master/COPYING
+
 #include "dust-server/script_document.h"
 
 #include "dust/document.h"

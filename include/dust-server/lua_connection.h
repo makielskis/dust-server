@@ -1,3 +1,10 @@
+// Copyright (c) 2014, makielski.net
+// Licensed under the MIT license
+// https://raw.github.com/makielski/botscript/master/COPYING
+
+#ifndef DUST_SERVER_LUA_CONNECTION_H_
+#define DUST_SERVER_LUA_CONNECTION_H_
+
 #include <memory>
 
 #include "dust/storage/key_value_store.h"
@@ -30,8 +37,7 @@ class lua_error : public std::exception {
 class lua_connection {
  public:
   lua_connection(std::shared_ptr<dust::key_value_store> store);
-
-  std::string apply_script(std::string script);
+  std::string apply_script(const std::string& script);
 
  private:
   void registerLuaDocument(const state_wrapper& L);
@@ -41,4 +47,6 @@ class lua_connection {
   std::shared_ptr<dust::key_value_store> store_;
 };
 
-}
+}  // namespace dust_server
+
+#endif  // DUST_SERVER_LUA_CONNECTION_H_

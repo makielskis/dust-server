@@ -1,21 +1,16 @@
-#include <boost/archive/iterators/base64_from_binary.hpp>
-#include <boost/archive/iterators/binary_from_base64.hpp>
-#include <boost/archive/iterators/transform_width.hpp>
-#include <boost/archive/iterators/remove_whitespace.hpp>
+// Copyright (c) 2014, makielski.net
+// Licensed under the MIT license
+// https://raw.github.com/makielski/botscript/master/COPYING
 
-#include <iostream>
+#ifndef DUST_SERVER_BASE64_DECODE_H_
+#define DUST_SERVER_BASE64_DECODE_H_
+
 #include <string>
 
 namespace dust_server {
-  std::string decode_base64(std::string base64) {
-    using namespace boost::archive::iterators;
 
-    typedef transform_width< binary_from_base64<remove_whitespace<std::string::const_iterator> >, 8, 6 > it_binary_t;
+std::string decode_base64(std::string base64);
 
-    unsigned int paddChars = count(base64.begin(), base64.end(), '=');
-    std::replace(base64.begin(), base64.end(),'=','A'); // replace '=' by base64 encoding of '\0'
-    std::string result(it_binary_t(base64.begin()), it_binary_t(base64.end())); // decode
-    result.erase(result.end()-paddChars, result.end());  // erase padding '\0' characters
-    return result;
-  }
-}
+}  // namespace dust_server
+
+#endif  // DUST_SERVER_BASE64_DECODE_H_

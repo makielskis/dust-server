@@ -1,3 +1,7 @@
+// Copyright (c) 2014, makielski.net
+// Licensed under the MIT license
+// https://raw.github.com/makielski/botscript/master/COPYING
+
 #include <memory>
 #include <functional>
 
@@ -20,16 +24,14 @@ using std::placeholders::_2;
 
 http_service::http_service(boost::asio::io_service* io_service,
                            std::shared_ptr<dust::key_value_store> store,
-                           const std::string& ip,
-                           const std::string& port,
-                           const std::string& username,
-                           const std::string& password)
+                           const options& config)
     : io_service_(io_service),
       request_handler_(std::bind(&http_service::handle_request, this, _1, _2)),
-      http_server_(*io_service_, ip, port, request_handler_),
+      http_server_(*io_service_, config.host(), config.port(),
+                   request_handler_),
       lua_con_(store),
-      username_(std::move(username)),
-      password_(std::move(password)) {
+      username_("admin"),
+      password_(config.password()) {
 }
 
 bool http_service::authorized(const std::string& auth) const {
@@ -100,4 +102,4 @@ void http_service::handle_request(const http::server::request& req,
   rep.headers[1].value = "text/plain";
 }
 
-}
+}  // namespace dust_server

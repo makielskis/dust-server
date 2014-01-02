@@ -3,20 +3,22 @@
 #include "boost/asio/io_service.hpp"
 
 #include "dust/storage/mem_store.h"
+
 #include "dust-server/http_service.h"
+#include "dust-server/options.h"
 
 using namespace dust;
+using namespace dust_server;
 
 class server_test: public testing::Test {
- public:
+public:
   server_test()
       : io_service_(),
-        server_(&io_service_,
-                std::make_shared<mem_store>(),
-                "0.0.0.0", "9004", "testuser", "testpass")  {
+        server_(&io_service_, std::make_shared<mem_store>(),
+                dust_server::options("localhost", "9004", "mypass")) {
   }
 
- protected:
+protected:
   boost::asio::io_service io_service_;
   dust_server::http_service server_;
 };

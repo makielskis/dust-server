@@ -1,3 +1,10 @@
+// Copyright (c) 2014, makielski.net
+// Licensed under the MIT license
+// https://raw.github.com/makielski/botscript/master/COPYING
+
+#ifndef DUST_SERVER_DUST_SERVER_H_
+#define DUST_SERVER_DUST_SERVER_H_
+
 #include <memory>
 #include <string>
 
@@ -7,6 +14,7 @@
 #include "dust/storage/key_value_store.h"
 
 #include "dust-server/lua_connection.h"
+#include "dust-server/options.h"
 
 namespace boost {
 namespace asio {
@@ -21,14 +29,14 @@ class reply;
 
 namespace dust_server {
 
+class options;
+
 class http_service {
  public:
   http_service(boost::asio::io_service* io_service,
                std::shared_ptr<dust::key_value_store> store,
-               const std::string& ip,
-               const std::string& port,
-               const std::string& username,
-               const std::string& password);
+               const options& config);
+
  private:
   bool authorized(const std::string& auth) const;
   void handle_request(const http::server::request& request,
@@ -42,4 +50,6 @@ class http_service {
   const std::string password_;
 };
 
-}
+}  // namespace dust_server
+
+#endif  // DUST_SERVER_DUST_SERVER_H_

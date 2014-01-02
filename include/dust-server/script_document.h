@@ -31,6 +31,6 @@ class script_document : public dust::document {
   script_document index_op(script_document doc, luabridge::LuaRef key);
 };
 
-}
+}  // namespace dust_server
 
 #endif  // DUST_SERVER_SCRPT_DOCUMENT_H_
