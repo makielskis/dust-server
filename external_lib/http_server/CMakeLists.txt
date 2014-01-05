@@ -16,7 +16,6 @@ if(Boost_FOUND)
 else(Boost_FOUND)
   message("No Boost found.")
 endif(Boost_FOUND)
-link_directories(${CMAKE_LIBRARY_PATH})
 
 
 ################################
