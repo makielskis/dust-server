@@ -21,6 +21,12 @@ namespace server {
 /// A request received from a client.
 struct request
 {
+  request()
+    : http_version_major(0),
+      http_version_minor(0),
+      content_length(0) {
+  }
+
   std::string method;
   std::string uri;
   int http_version_major;
