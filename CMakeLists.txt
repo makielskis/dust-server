@@ -10,6 +10,7 @@ add_subdirectory(external_lib/http_server)
 if (NOT TARGET lua)
   add_subdirectory(external_lib/lua-5.2)
 endif()
+find_package(Boost REQUIRED)
 
 
 ################################
@@ -20,6 +21,7 @@ include_directories("external_lib/dust/include")
 include_directories("external_lib/http_server")
 include_directories("external_lib/luabridge/Source")
 include_directories("external_lib/lua-5.2/src")
+include_directories(${Boost_INCLUDE_DIR})
 
 
 ################################
