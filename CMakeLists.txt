@@ -32,10 +32,7 @@ add_library(dust-server STATIC ${src_files})
 target_link_libraries(dust-server dust http_server lua)
 
 if (MSVC)
-  set(_def
-    _VARIADIC_MAX=10
-    _WIN32_WINNT=0x0501
-  )
+  set(_def "_VARIADIC_MAX=10 _WIN32_WINNT=0x0501")
   set_target_properties(dust-server PROPERTIES COMPILE_DEFINITIONS ${_def})
 elseif(MINGW)
   set(_def
