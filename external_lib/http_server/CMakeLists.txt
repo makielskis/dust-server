@@ -12,7 +12,7 @@ find_package(Boost COMPONENTS
   regex
 REQUIRED)
 if(Boost_FOUND)
-  include_directories(${Boost_INCLUDE_DIR})
+  include_directories(SYSTEM ${Boost_INCLUDE_DIR})
 else(Boost_FOUND)
   message("No Boost found.")
 endif(Boost_FOUND)

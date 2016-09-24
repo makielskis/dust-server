@@ -16,12 +16,12 @@ find_package(Boost REQUIRED)
 ################################
 # Include Paths
 ################################
-include_directories("include/")
-include_directories("external_lib/dust/include")
+include_directories(SYSTEM "external_lib/luabridge/Source")
+include_directories(SYSTEM "external_lib/lua-5.2/src")
+include_directories(SYSTEM ${Boost_INCLUDE_DIR})
 include_directories("external_lib/http_server")
-include_directories("external_lib/luabridge/Source")
-include_directories("external_lib/lua-5.2/src")
-include_directories(${Boost_INCLUDE_DIR})
+include_directories("external_lib/dust/include")
+include_directories("include")
 
 
 ################################
