@@ -16,11 +16,13 @@
 #include "dust-server/lua_connection.h"
 #include "dust-server/options.h"
 
+#ifndef BOOST_ASIO_HPP
 namespace boost {
 namespace asio {
 class io_service;
 }
 }
+#endif // BOOST_ASIO_HPP
 
 namespace http_server {
 class request;
