@@ -8,6 +8,8 @@
 #include <memory>
 #include <string>
 
+#include "boost/asio/io_service.hpp"
+
 #include "server.hpp"
 #include "request_handler.hpp"
 
@@ -15,12 +17,6 @@
 
 #include "dust-server/lua_connection.h"
 #include "dust-server/options.h"
-
-namespace boost {
-namespace asio {
-class io_service;
-}
-}
 
 namespace http_server {
 class request;
