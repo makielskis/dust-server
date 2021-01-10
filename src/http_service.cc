@@ -13,9 +13,9 @@
 #include "boost/lexical_cast.hpp"
 #include "boost/asio/io_service.hpp"
 
-#include "url_decode.hpp"
-#include "request.hpp"
-#include "reply.hpp"
+#include "http_server/url_decode.hpp"
+#include "http_server/request.hpp"
+#include "http_server/reply.hpp"
 
 namespace dust_server {
 

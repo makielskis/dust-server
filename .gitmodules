@@ -1,6 +1,0 @@
-[submodule "external_lib/dust"]
-	path = external_lib/dust
-	url = git@bitbucket.org:makielski/dust.git
-[submodule "external_lib/lua-5.2"]
-	path = external_lib/lua-5.2
-	url = git@bitbucket.org:makielski/lua.git

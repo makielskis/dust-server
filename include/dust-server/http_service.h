@@ -10,8 +10,8 @@
 
 #include "boost/asio/io_service.hpp"
 
-#include "server.hpp"
-#include "request_handler.hpp"
+#include "http_server/server.hpp"
+#include "http_server/request_handler.hpp"
 
 #include "dust/storage/key_value_store.h"
 

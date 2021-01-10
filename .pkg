@@ -1,0 +1,20 @@
+[http_server]
+  url=git@github.com:makielskis/http_server.git
+  branch=master
+  commit=e00d20240d165a51c86ed074e76a042bb0261494
+[lua]
+  url=git@github.com:makielskis/lua.git
+  branch=master
+  commit=5a51141d6bbf34e2c2f8a7dd0120773791dbe7e8
+[luabridge]
+  url=git@github.com:makielskis/luabridge.git
+  branch=master
+  commit=924d9443cf6b8233e278e0b35f4d0b0d6c62e869
+[boost]
+  url=git@github.com:motis-project/boost.git
+  branch=master
+  commit=03a2fc17e1104524da91e3a8a55ca6e09190b4c9
+[dust]
+  url=git@github.com:makielskis/dust.git
+  branch=master
+  commit=bf2482b0fb72bec828320a10c8ec00116209b0f5
