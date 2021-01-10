@@ -5,7 +5,7 @@
 [lua]
   url=git@github.com:makielskis/lua.git
   branch=master
-  commit=5a51141d6bbf34e2c2f8a7dd0120773791dbe7e8
+  commit=f333a142fb531713a2be0756cc0b8adeee6ad3db
 [luabridge]
   url=git@github.com:makielskis/luabridge.git
   branch=master
@@ -17,4 +17,4 @@
 [dust]
   url=git@github.com:makielskis/dust.git
   branch=master
-  commit=bf2482b0fb72bec828320a10c8ec00116209b0f5
+  commit=874bb42b48df855e44ee5af5d951982106124eed
