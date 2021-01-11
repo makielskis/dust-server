@@ -17,4 +17,8 @@
 [dust]
   url=git@github.com:makielskis/dust.git
   branch=master
-  commit=312f61111e544604f6099342e106e5f1fe307356
+  commit=a37afbc9549923e782b6509253ecf7e07d2becc9
+[googletest]
+  url=git@github.com:motis-project/googletest.git
+  branch=master
+  commit=7b1897f1e728c8d160b53ce969c6c6850d1fda3a
