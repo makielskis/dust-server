@@ -5,7 +5,7 @@
 [lua]
   url=git@github.com:makielskis/lua.git
   branch=master
-  commit=f333a142fb531713a2be0756cc0b8adeee6ad3db
+  commit=d912894688f6c4e5ebe54df95fb2a232aa38cffc
 [luabridge]
   url=git@github.com:makielskis/luabridge.git
   branch=master
